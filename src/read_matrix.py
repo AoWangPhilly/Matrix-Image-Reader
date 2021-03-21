@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
-
+import tensorflow as tf
 
 def predict_digit(digit, dim=(28, 28)):
     model = tf.keras.models.load_model('digit.model')
@@ -11,7 +11,7 @@ def predict_digit(digit, dim=(28, 28)):
     return np.argmax(prediction)
 
 
-def draw_borders(fname: str = 'Pictures/m1.png'):
+def draw_borders(fname: str = 'Pictures/m1.png', shape=(3, 3)):
     img = cv2.imread(fname)
 
     img = cv2.resize(img, (512, 512), interpolation=cv2.INTER_NEAREST)
@@ -45,6 +45,7 @@ def draw_borders(fname: str = 'Pictures/m1.png'):
 
     contours = sorted(
         contours, key=lambda x: cv2.boundingRect(x)[0]*50 + cv2.boundingRect(x)[1]*200)
+        
     for i, cnt in enumerate(contours):
         if cv2.contourArea(cnt) > 50:
             x, y, w, h = cv2.boundingRect(cnt)
