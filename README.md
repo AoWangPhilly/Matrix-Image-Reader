@@ -1,6 +1,7 @@
 # Matrix-Image-Reader
 An app that takes in a hand-drawn matrix and converts it into an Matrix object that can be used in future calculations. Built for HackPSU!
 
+![image_process.jpeg](https://github.com/AoWangPhilly/Matrix-Image-Reader/blob/main/Pictures/image_process.jpeg)
 ## Goal
 1. Read in any hand-drawn matrix and convert to a Sympy Matrix object
 2. Scale only to single digits and positive numbers
