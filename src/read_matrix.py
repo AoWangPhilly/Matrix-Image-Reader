@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-
+import matplotlib.pyplot as plt
 # def sort_contours(cnts, method="top-to-bottom"):
 # 	# initialize the reverse flag and sort index
 # 	reverse = False
@@ -29,7 +29,8 @@ def rescaleFrame(frame, scale=0.75):
     # Return frame and dimensions
     return cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
 
-def clean_image(fname: str = 'Pictures/m3.png'):
+
+def clean_image(fname: str = 'Pictures/m1.png'):
     img = cv2.imread(fname)
     kernel = np.ones((7, 7), np.uint8)
     img = cv2.dilate(img, kernel, iterations=1)
@@ -54,11 +55,14 @@ def draw_borders(fname: str = 'Pictures/m1.png'):
     img = cv2.imread(fname)
 
     img = cv2.resize(img, (512, 512), interpolation=cv2.INTER_NEAREST)
+    # kernel = np.ones((7, 7), np.uint8)
+    # img = cv2.dilate(img, kernel, iterations=1)
+    # img = cv2.erode(img, kernel, iterations=1)
     # Turn image to gray scale
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # Use Gaussian blur to reduce # of noisy edges
-    blur = cv2.GaussianBlur(src=gray, ksize=(7, 7), sigmaX=0)
+    blur = cv2.GaussianBlur(src=gray, ksize=(13, 13), sigmaX=1)
 
     # Seperate foreground and background, results in clearer matrix
     thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
@@ -71,7 +75,6 @@ def draw_borders(fname: str = 'Pictures/m1.png'):
     # thresh = thresh[y:y+h, x:x+w]
     # img = img[y:y+h, x:x+w]
 
-    cv2.imshow('Thresh', thresh)
     # Find contours
     contours, hierarchy = cv2.findContours(
         thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -79,16 +82,23 @@ def draw_borders(fname: str = 'Pictures/m1.png'):
     # Remove the two brackets on the side
     contours = sorted(
         contours, key=lambda x: cv2.contourArea(x), reverse=True)[2:]
-    # contours = sort_contours(contours)[0]
-    # contours = sort_contours(contours, method='left-to-right')[0]
+
+    contours = sorted(
+        contours, key=lambda x: cv2.boundingRect(x)[0]*50 + cv2.boundingRect(x)[1]*200)
     for i, cnt in enumerate(contours):
-        x, y, w, h = cv2.boundingRect(cnt)
-        cv2.rectangle(img, (x, y), (x+w, y+h), (0, 0, 255))
-        roi = thresh[y:y+h, x:x+w]
-        # cv2.imwrite(f'ye{i}.png', roi)
-    cv2.imshow('norm', img)
-    cv2.waitKey(0)
+        if cv2.contourArea(cnt) > 50:
+            x, y, w, h = cv2.boundingRect(cnt)
+            cv2.rectangle(thresh, (x-7, y-7), (x+w+7, y+h+7), (255, 255, 255))
+            digit = thresh[y-1:y+h+1, x-1:x+w+1]
+            # roi = thresh[y:y+h, x:x+w]
+            resized_digit = cv2.resize(
+                digit, (18, 18), interpolation=cv2.INTER_AREA)
+            # resized_digit = image_resize(digit, 18, 18)
+            padded_digit = np.pad(
+                resized_digit, ((5, 5), (5, 5)), "constant", constant_values=0)
+            cv2.imshow('.', padded_digit)
+            cv2.waitKey(0)
 
 
 if __name__ == '__main__':
-    clean_image()
+    draw_borders()
